@@ -1,0 +1,6 @@
+.venv
+.vscode
+*.so
+build
+cy_src/*.c
+cy_src/*.o
