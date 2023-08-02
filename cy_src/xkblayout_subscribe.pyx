@@ -2,6 +2,9 @@
 
 
 cdef extern from "../c_src/xkblayout_module.c":
+    """
+    /* #define XKBL_NO_RETURNS */
+    """
     int xkbl_mod_init()
     int xkbl_mod_update() nogil
     void xkbl_mod_deinit()
@@ -31,7 +34,11 @@ def update() -> int:
 
     cdef int lang
     with nogil:
-        lang = xkbl_mod_update()
+        while True:
+            lang = xkbl_mod_update()
+            if lang == -1:
+                continue
+            break
     return lang
 
 
@@ -46,9 +53,3 @@ def deinit():
     __is_init = False
     xkbl_mod_deinit()
 
-
-def __del__():
-    try:
-        xkbl_mod_deinit()
-    except:
-        pass

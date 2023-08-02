@@ -27,9 +27,10 @@ int xkbl_mod_init(void){
     return 0;
 }
 
+
 int xkbl_mod_update(void){
     XEvent e;
-
+    #if defined XKBL_NO_RETURNS
     while(1){
         XNextEvent(xkbl_mod_display, &e);
         if (e.type != xkbl_mod_event_type) continue;
@@ -40,7 +41,19 @@ int xkbl_mod_update(void){
         xkbl_mod_prevlang = lang;
         return lang;
     }
+    #else
+        XNextEvent(xkbl_mod_display, &e);
+        if (e.type != xkbl_mod_event_type) return -1;
+        XkbEvent* xkbEvent = (XkbEvent*) &e;
+        if  (xkbEvent-> any.xkb_type != XkbStateNotify) return -1;
+        int lang = xkbEvent-> state.group;
+        if (lang == xkbl_mod_prevlang) return -1;
+        xkbl_mod_prevlang = lang;
+        return lang;
+    #endif
 }
+
+
 
 void xkbl_mod_deinit(void){
     if (xkbl_mod_display != NULL){
